@@ -3,6 +3,7 @@ package org.hotel.project.lakesidehotel.controller;
 import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.hotel.project.lakesidehotel.exception.PhotoRetrievalException;
+import org.hotel.project.lakesidehotel.exception.ResourceNotFoundException;
 import org.hotel.project.lakesidehotel.model.BookedRoom;
 import org.hotel.project.lakesidehotel.model.Room;
 import org.hotel.project.lakesidehotel.response.BookingResponse;
@@ -15,12 +16,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.sql.rowset.serial.SerialBlob;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/rooms")
@@ -71,11 +74,11 @@ public class RoomController {
 //                        .build()).toList();
         byte[] photoBytes = null;
         Blob photoBlob = room.getPhoto();
-        if(photoBlob != null) {
+        if (photoBlob != null) {
             try {
                 photoBytes = photoBlob.getBytes(1, (int) photoBlob.length());
             } catch (SQLException e) {
-                throw  new PhotoRetrievalException("Error retrieving photo");
+                throw new PhotoRetrievalException("Error retrieving photo");
             }
         }
         return RoomResponse.builder()
@@ -86,6 +89,33 @@ public class RoomController {
 //                .bookings(bookingInfo)
                 .photo(Base64.encodeBase64String(photoBytes))
                 .build();
+    }
+
+    @PutMapping("/update/{roomId}")
+    public ResponseEntity<RoomResponse> updateRoom(
+            @PathVariable Long roomId,  
+            @RequestParam(required = false) String roomType,
+            @RequestParam(required = false) BigDecimal roomPrice,
+            @RequestParam(required = false) MultipartFile photo
+    ) throws IOException, SQLException {
+        byte[] photoBytes = photo != null && !photo.isEmpty() ?
+                photo.getBytes() :
+                roomService.getRoomPhotoById(roomId);
+        Blob photoBlob = photoBytes != null && photoBytes.length > 0 ?
+                new SerialBlob(photoBytes) : null;
+        Room room = roomService.updateRoom(roomId, roomType, roomPrice, photoBytes);
+        room.setPhoto(photoBlob);
+        RoomResponse roomResponse = getRoomResponse(room);
+        return ResponseEntity.ok(roomResponse);
+    }
+
+    @GetMapping("/room/{roomId}")
+    public ResponseEntity<Optional<RoomResponse>> getRoomById(@PathVariable Long roomId) {
+        Optional<Room> room = roomService.getRoomById(roomId);
+        return room.map(roomTmp -> {
+            RoomResponse roomResponse = getRoomResponse(roomTmp);
+            return ResponseEntity.ok(Optional.of(roomResponse));
+        }).orElseThrow(() -> new ResourceNotFoundException("Room not found"));
     }
 
     @DeleteMapping("/delete/room/{roomId}")
