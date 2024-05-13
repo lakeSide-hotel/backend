@@ -20,7 +20,7 @@ public class BookingService implements IBookingService {
 
     @Override
     public List<BookedRoom> getAllBookingByRoomId(Long roomId) {
-        return bookingRepository.finByRoomId(roomId);
+        return bookingRepository.findByRoomId(roomId);
     }
 
     @Override

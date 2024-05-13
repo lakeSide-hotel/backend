@@ -25,10 +25,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/rooms")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class RoomController {
     private final IRoomService roomService;
     private final IBookingService bookingService;

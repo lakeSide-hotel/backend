@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/bookings")
 @RequiredArgsConstructor
