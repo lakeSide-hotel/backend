@@ -1,6 +1,7 @@
 package org.hotel.project.lakesidehotel.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.tomcat.util.codec.binary.Base64;
 import org.hotel.project.lakesidehotel.exception.InvalidBookingRequestException;
 import org.hotel.project.lakesidehotel.exception.ResourceNotFoundException;
 import org.hotel.project.lakesidehotel.model.BookedRoom;
@@ -9,10 +10,12 @@ import org.hotel.project.lakesidehotel.response.BookingResponse;
 import org.hotel.project.lakesidehotel.response.RoomResponse;
 import org.hotel.project.lakesidehotel.service.IBookingService;
 import org.hotel.project.lakesidehotel.service.IRoomService;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;

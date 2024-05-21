@@ -2,6 +2,7 @@ package org.hotel.project.lakesidehotel.service.implement;
 
 import lombok.RequiredArgsConstructor;
 import org.hotel.project.lakesidehotel.exception.InvalidBookingRequestException;
+import org.hotel.project.lakesidehotel.exception.ResourceNotFoundException;
 import org.hotel.project.lakesidehotel.model.BookedRoom;
 import org.hotel.project.lakesidehotel.model.Room;
 import org.hotel.project.lakesidehotel.repository.BookingRepository;
@@ -54,7 +55,10 @@ public class BookingService implements IBookingService {
 
     @Override
     public BookedRoom findByBookingConfirmationCode(String confirmationCode) {
-        return bookingRepository.findByBookingConfirmationCode(confirmationCode);
+        return bookingRepository.findByBookingConfirmationCode(confirmationCode)
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("No Booking found with booking code: " + confirmationCode)
+                );
     }
 
     private boolean roomIsAvailable(BookedRoom bookingRequest,
